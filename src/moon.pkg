@@ -1,0 +1,11 @@
+import {
+  "gmlewis/flate",
+  "gmlewis/hash",
+  "gmlewis/hash/crc32",
+  "gmlewis/io",
+  "moonbitlang/x/fs",
+}
+
+options(
+  "is-main": false,
+)
