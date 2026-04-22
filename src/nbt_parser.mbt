@@ -122,7 +122,7 @@ fn read_i64(r : &@io.Reader) -> (Int64, IOError?) {
 ///| Read a 32-bit float (IEEE 754)
 fn read_f32(r : &@io.Reader) -> (Float, IOError?) {
   let (bits, err) = read_i32(r)
-  let v = bits.reinterpret_as_float()
+  let v = Float::reinterpret_from_int(bits)
   (v, err)
 }
 
