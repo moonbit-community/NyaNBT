@@ -205,7 +205,7 @@ pub impl Resetter for Reader with reset(self, r, _dict) {
     let xlen = (xlen_buf[0].to_uint() | (xlen_buf[1].to_uint() << 8)).reinterpret_as_int()
 
     let skip_buf: Slice[Byte] = Slice::new([0])
-    for i in 0..<xlen {
+    for _ in 0..<xlen {
       let (_, _) = self.r.read(skip_buf)
     }
   }
