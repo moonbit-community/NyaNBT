@@ -41,7 +41,7 @@ const TAG_Int_Array = 11
 const TAG_Long_Array = 12
 
 ///| Define an enum for NBT tag values.
-enum NBT_Value {
+pub(all) enum NBT_Value {
   Byte(Int)
   Short(Int)
   Int(Int)
@@ -58,7 +58,7 @@ enum NBT_Value {
 }
 
 ///| Update the NBT_Tag structure to use the enums.
-struct NBT_Tag {
+pub(all) struct NBT_Tag {
   tag_type : Int
   name : String?
   value : NBT_Value
