@@ -1,0 +1,61 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "xunyoyo/NyaNBT"
+
+import {
+  "gmlewis/flate",
+  "gmlewis/io",
+}
+
+// Values
+pub let err_checksum : @io.IOError
+
+pub let err_dictionary : @io.IOError
+
+pub let err_header : @io.IOError
+
+pub fn parse_nbt(&@io.Reader) -> (NBT_Tag, @io.IOError?)
+
+pub fn read_nbt(String) -> Unit raise
+
+pub fn read_nbt_tag(&@io.Reader) -> (NBT_Tag, @io.IOError?)
+
+// Errors
+
+// Types and methods
+pub(all) struct NBT_Tag {
+  tag_type : Int
+  name : String?
+  value : NBT_Value
+}
+
+pub(all) enum NBT_Value {
+  Byte(Int)
+  Short(Int)
+  Int(Int)
+  Long(Int64)
+  Float(Float)
+  Double(Double)
+  ByteArray(@io.Slice[Byte])
+  String(String)
+  List(@io.Slice[NBT_Tag])
+  Compound(Map[String, NBT_Tag])
+  IntArray(@io.Slice[Int])
+  LongArray(@io.Slice[Int64])
+  None
+}
+
+type Reader
+pub fn Reader::new(&@flate.Reader) -> (&@io.ReadCloser, @io.IOError?)
+pub fn Reader::new_dict(&@flate.Reader, @io.Slice[Byte]) -> (&@io.ReadCloser, @io.IOError?)
+pub impl @io.Closer for Reader
+pub impl @io.ReadCloser for Reader
+pub impl @io.Reader for Reader
+pub impl Resetter for Reader
+
+// Type aliases
+
+// Traits
+pub(open) trait Resetter {
+  reset(Self, &@flate.Reader, @io.Slice[Byte]) -> @io.IOError?
+}
+
