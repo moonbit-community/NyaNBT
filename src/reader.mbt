@@ -161,6 +161,9 @@ pub impl @io.Closer for Reader with close(self) {
 }
 
 ///|
+pub impl @io.ReadCloser for Reader
+
+///|
 pub impl Resetter for Reader with reset(self, r, _dict) {
   self.r = r
   self.digest = @crc32.new()
