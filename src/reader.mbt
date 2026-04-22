@@ -34,10 +34,10 @@ const GZIP_FEXTRA = b'\x04'    // 有额外字段
 const GZIP_FNAME = b'\x08'     // 有原始文件名
 const GZIP_FCOMMENT = b'\x10'  // 有注释
 ///|
-typealias Slice[T] = @io.Slice[T]
+type Slice[T] = @io.Slice[T]
 
 ///|
-typealias IOError = @io.IOError
+type IOError = @io.IOError
 
 ///| err_checksum is returned when reading ZLIB data that has an invalid checksum.
 pub let err_checksum : IOError = IOError("gzip: invalid checksum")
