@@ -1,7 +1,8 @@
 /// This file will handle parsing uncompressed NBT data streams.
 /// It will include functions to read and interpret NBT tags and structures.
 
-///| Define an enum for NBT tag types.
+///|
+/// Define an enum for NBT tag types.
 const TAG_End = 0
 
 ///|
@@ -40,7 +41,8 @@ const TAG_Int_Array = 11
 ///|
 const TAG_Long_Array = 12
 
-///| Define an enum for NBT tag values.
+///|
+/// Define an enum for NBT tag values.
 pub(all) enum NBT_Value {
   Byte(Int)
   Short(Int)
@@ -57,33 +59,38 @@ pub(all) enum NBT_Value {
   None
 }
 
-///| Update the NBT_Tag structure to use the enums.
+///|
+/// Update the NBT_Tag structure to use the enums.
 pub(all) struct NBT_Tag {
   tag_type : Int
   name : String?
   value : NBT_Value
 }
 
-///| Helper: read exactly len(buf) bytes into buf
+///|
+/// Helper: read exactly len(buf) bytes into buf
 fn read_exact(r : &@io.Reader, buf : Slice[Byte]) -> IOError? {
   let (_, err) = @io.read_full(r, buf)
   err
 }
 
-///| Read an unsigned 8-bit
+///|
+/// Read an unsigned 8-bit
 fn read_u8(r : &@io.Reader) -> (Int, IOError?) {
   let buf : @io.Slice[Byte] = Slice::new([0])
   let err = read_exact(r, buf)
   (buf[0].to_int(), err)
 }
 
-///| Read a signed 8-bit
+///|
+/// Read a signed 8-bit
 fn read_i8(r : &@io.Reader) -> (Int, IOError?) {
   let (b, err) = read_u8(r)
   (b, err)
 }
 
-///| Read a big-endian 16-bit signed
+///|
+/// Read a big-endian 16-bit signed
 fn read_i16(r : &@io.Reader) -> (Int, IOError?) {
   let buf : @io.Slice[Byte] = Slice::new([0, 0])
   let err = read_exact(r, buf)
@@ -91,7 +98,8 @@ fn read_i16(r : &@io.Reader) -> (Int, IOError?) {
   (v, err)
 }
 
-///| Read a big-endian 32-bit signed
+///|
+/// Read a big-endian 32-bit signed
 fn read_i32(r : &@io.Reader) -> (Int, IOError?) {
   let buf : @io.Slice[Byte] = Slice::new([0, 0, 0, 0])
   let err = read_exact(r, buf)
@@ -102,7 +110,8 @@ fn read_i32(r : &@io.Reader) -> (Int, IOError?) {
   (v, err)
 }
 
-///| Read a big-endian 64-bit signed
+///|
+/// Read a big-endian 64-bit signed
 fn read_i64(r : &@io.Reader) -> (Int64, IOError?) {
   let buf : @io.Slice[Byte] = Slice::new([0, 0, 0, 0, 0, 0, 0, 0])
   let err = read_exact(r, buf)
@@ -119,20 +128,23 @@ fn read_i64(r : &@io.Reader) -> (Int64, IOError?) {
   (v_u.reinterpret_as_int64(), err)
 }
 
-///| Read a 32-bit float (IEEE 754)
+///|
+/// Read a 32-bit float (IEEE 754)
 fn read_f32(r : &@io.Reader) -> (Float, IOError?) {
   let (bits, err) = read_i32(r)
   let v = Float::reinterpret_from_int(bits)
   (v, err)
 }
 
-///| Read a 64-bit float (IEEE 754)
+///|
+/// Read a 64-bit float (IEEE 754)
 fn read_f64(r : &@io.Reader) -> (Double, IOError?) {
   let (v64, err) = read_i64(r)
   (v64.reinterpret_as_double(), err)
 }
 
-///| Read a UTF-8 string
+///|
+/// Read a UTF-8 string
 fn read_string(r : &@io.Reader) -> (String, IOError?) {
   let (length, err) = read_i16(r)
   if err != None {
@@ -149,7 +161,8 @@ fn read_string(r : &@io.Reader) -> (String, IOError?) {
   (buf.to_bytes().to_unchecked_string(), err2)
 }
 
-///| Function to read a single NBT tag from a binary stream.
+///|
+/// Function to read a single NBT tag from a binary stream.
 pub fn read_nbt_tag(r : &@io.Reader) -> (NBT_Tag, IOError?) {
   // read tag type
   let (tagType, err) = read_u8(r)
@@ -177,7 +190,8 @@ pub fn read_nbt_tag(r : &@io.Reader) -> (NBT_Tag, IOError?) {
   ({ tag_type: tagType, name: Some(name), value }, err_payload)
 }
 
-///| Reads the payload/value of an NBT tag given its type.
+///|
+/// Reads the payload/value of an NBT tag given its type.
 fn read_nbt_payload(r : &@io.Reader, tag_type : Int) -> (NBT_Value, IOError?) {
   match tag_type {
     TAG_Byte => {
@@ -337,7 +351,8 @@ fn read_nbt_payload(r : &@io.Reader, tag_type : Int) -> (NBT_Value, IOError?) {
   }
 }
 
-///| Function to parse an entire NBT structure from a binary stream.
+///|
+/// Function to parse an entire NBT structure from a binary stream.
 pub fn parse_nbt(r : &@io.Reader) -> (NBT_Tag, IOError?) {
   // The root tag must be a named TAG_Compound.
   let (root_tag, err) = read_nbt_tag(r)
