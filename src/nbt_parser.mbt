@@ -273,7 +273,7 @@ fn read_nbt_payload(r : &@io.Reader, tag_type : Int) -> (NBT_Value, IOError?) {
       (NBT_Value::List(Slice::new(list_arr)), None)
     }
     TAG_Compound => {
-      let compound_map = Map::new()
+      let compound_map : Map[String, NBT_Tag] = Map([])
       while true {
         // Recursively read the next tag (type, name, payload)
         let (tag, err_tag) = read_nbt_tag(r)
