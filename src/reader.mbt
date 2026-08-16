@@ -80,7 +80,7 @@ struct Reader {
 pub(open) trait Resetter {
   /// reset discards any buffered data and resets the Resetter as if it was
   /// newly initialized with the given reader.
-  reset(Self, &@flate.Reader, Slice[Byte]) -> IOError?
+  fn reset(Self, &@flate.Reader, Slice[Byte]) -> IOError?
 }
 
 ///|
@@ -118,13 +118,13 @@ pub fn Reader::new_dict(
 }
 
 ///|
-pub impl @io.Reader for Reader with read(self, p) {
+pub impl @io.Reader for Reader with fn read(self, p) {
   if self.err != None {
     return (0, self.err)
   }
-  let (n, err) = self.decompressor.read(p)
+  let (n, err) = @io.Reader::read(self.decompressor, p)
   self.err = err
-  guard self.digest.write(p[0:n]) is (_, None)
+  guard! self.digest.write(p[0:n]) is (_, None)
 
   self.size = self.size + n.reinterpret_as_uint()
 
@@ -171,11 +171,11 @@ fn le_uint32(b : Slice[Byte]) -> UInt {
 /// Calling close does not close the wrapped [io.Reader] originally passed to [Reader::new].
 /// In order for the ZLIB checksum to be verified, the reader must be
 /// fully consumed until the [io.eof].
-pub impl @io.Closer for Reader with close(self) {
+pub impl @io.Closer for Reader with fn close(self) {
   if self.err != None && self.err != Some(@io.eof) {
     return self.err
   }
-  self.err = self.decompressor.close()
+  self.err = @io.Closer::close(self.decompressor)
   self.err
 }
 
@@ -183,7 +183,7 @@ pub impl @io.Closer for Reader with close(self) {
 pub impl @io.ReadCloser for Reader
 
 ///|
-pub impl Resetter for Reader with reset(self, r, _dict) {
+pub impl Resetter for Reader with fn reset(self, r, _dict) {
   self.r = r
   self.digest = @crc32.new()
   self.err = None

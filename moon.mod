@@ -1,0 +1,23 @@
+name = "xunyoyo/NyaNBT"
+
+version = "0.1.0"
+
+import {
+  "gmlewis/io@0.23.8",
+  "gmlewis/hash@0.20.6",
+  "gmlewis/flate@0.36.6",
+  "moonbitlang/x@0.4.43",
+  "gmlewis/base64@0.16.7",
+}
+
+readme = "README.md"
+
+repository = ""
+
+license = "Apache-2.0"
+
+keywords = [ ]
+
+description = ""
+
+source = "src"
