@@ -45,8 +45,11 @@ pub(all) enum NBT_Value {
 }
 
 type Reader
+pub fn Reader::close(Self) -> @io.IOError?
 pub fn Reader::new(&@flate.Reader) -> (&@io.ReadCloser, @io.IOError?)
 pub fn Reader::new_dict(&@flate.Reader, @io.Slice[Byte]) -> (&@io.ReadCloser, @io.IOError?)
+pub fn Reader::read(Self, @io.Slice[Byte]) -> (Int, @io.IOError?)
+pub fn Reader::reset(Self, &@flate.Reader, @io.Slice[Byte]) -> @io.IOError?
 pub impl @io.Closer for Reader
 pub impl @io.ReadCloser for Reader
 pub impl @io.Reader for Reader
@@ -56,6 +59,5 @@ pub impl Resetter for Reader
 
 // Traits
 pub(open) trait Resetter {
-  reset(Self, &@flate.Reader, @io.Slice[Byte]) -> @io.IOError?
+  fn reset(Self, &@flate.Reader, @io.Slice[Byte]) -> @io.IOError?
 }
-
