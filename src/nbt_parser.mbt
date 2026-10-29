@@ -44,9 +44,9 @@ const TAG_Long_Array = 12
 ///|
 /// Define an enum for NBT tag values.
 pub(all) enum NBT_Value {
-  Byte(Int)
-  Short(Int)
-  Int(Int)
+  Byte(Int32)
+  Short(Int32)
+  Int(Int32)
   Long(Int64)
   Float(Float)
   Double(Double)
@@ -54,7 +54,7 @@ pub(all) enum NBT_Value {
   String(String)
   List(Slice[NBT_Tag]) // Contains unnamed tags of a single type
   Compound(Map[String, NBT_Tag]) // Contains named tags
-  IntArray(Slice[Int])
+  IntArray(Slice[Int32])
   LongArray(Slice[Int64]) // Corrected from Slice[Int]
   None
 }
@@ -62,7 +62,7 @@ pub(all) enum NBT_Value {
 ///|
 /// Update the NBT_Tag structure to use the enums.
 pub(all) struct NBT_Tag {
-  tag_type : Int
+  tag_type : Int32
   name : String?
   value : NBT_Value
 }
@@ -76,7 +76,7 @@ fn read_exact(r : &@io.Reader, buf : Slice[Byte]) -> IOError? {
 
 ///|
 /// Read an unsigned 8-bit
-fn read_u8(r : &@io.Reader) -> (Int, IOError?) {
+fn read_u8(r : &@io.Reader) -> (Int32, IOError?) {
   let buf : @io.Slice[Byte] = Slice::new([0])
   let err = read_exact(r, buf)
   (buf[0].to_int(), err)
@@ -84,14 +84,14 @@ fn read_u8(r : &@io.Reader) -> (Int, IOError?) {
 
 ///|
 /// Read a signed 8-bit
-fn read_i8(r : &@io.Reader) -> (Int, IOError?) {
+fn read_i8(r : &@io.Reader) -> (Int32, IOError?) {
   let (b, err) = read_u8(r)
   (b, err)
 }
 
 ///|
 /// Read a big-endian 16-bit signed
-fn read_i16(r : &@io.Reader) -> (Int, IOError?) {
+fn read_i16(r : &@io.Reader) -> (Int32, IOError?) {
   let buf : @io.Slice[Byte] = Slice::new([0, 0])
   let err = read_exact(r, buf)
   let v = ((buf[0].to_uint() << 8) | buf[1].to_uint()).reinterpret_as_int()
@@ -100,7 +100,7 @@ fn read_i16(r : &@io.Reader) -> (Int, IOError?) {
 
 ///|
 /// Read a big-endian 32-bit signed
-fn read_i32(r : &@io.Reader) -> (Int, IOError?) {
+fn read_i32(r : &@io.Reader) -> (Int32, IOError?) {
   let buf : @io.Slice[Byte] = Slice::new([0, 0, 0, 0])
   let err = read_exact(r, buf)
   let v = ((buf[0].to_uint() << 24) |
@@ -168,31 +168,34 @@ pub fn read_nbt_tag(r : &@io.Reader) -> (NBT_Tag, IOError?) {
   let (tagType, err) = read_u8(r)
   if err != None {
     // Return TAG_End on read error to avoid infinite loops in compound parsing
-    return ({ tag_type: TAG_End, name: None, value: NBT_Value::None }, err)
+    return ({ tag_type: TAG_End, name: None, value: NBT_Value::None, }, err)
   }
 
   // TAG_End has no name or payload
   if tagType == TAG_End {
-    return ({ tag_type: TAG_End, name: None, value: NBT_Value::None }, None)
+    return ({ tag_type: TAG_End, name: None, value: NBT_Value::None, }, None)
   }
 
   // read name (all tags except TAG_End have a name)
   let (name, err_name) = read_string(r)
   if err_name != None {
     // Return the read tagType but indicate error
-    return ({ tag_type: tagType, name: None, value: NBT_Value::None }, err_name)
+    return (
+      { tag_type: tagType, name: None, value: NBT_Value::None, },
+      err_name,
+    )
   }
 
   // read payload using the helper function
   let (value, err_payload) = read_nbt_payload(r, tagType)
 
   // Construct the final tag
-  ({ tag_type: tagType, name: Some(name), value }, err_payload)
+  ({ tag_type: tagType, name: Some(name), value, }, err_payload)
 }
 
 ///|
 /// Reads the payload/value of an NBT tag given its type.
-fn read_nbt_payload(r : &@io.Reader, tag_type : Int) -> (NBT_Value, IOError?) {
+fn read_nbt_payload(r : &@io.Reader, tag_type : Int32) -> (NBT_Value, IOError?) {
   match tag_type {
     TAG_Byte => {
       let (v, e) = read_i8(r)
@@ -309,7 +312,7 @@ fn read_nbt_payload(r : &@io.Reader, tag_type : Int) -> (NBT_Value, IOError?) {
           Some(IOError("nbt: negative length for int array")),
         )
       }
-      let arr : Array[Int] = Array::make(len, 0)
+      let arr : Array[Int32] = Array::make(len, 0)
       for i = 0; i < len; i = i + 1 {
         let (val, err_val) = read_i32(r)
         if err_val != None {
@@ -357,7 +360,7 @@ pub fn parse_nbt(r : &@io.Reader) -> (NBT_Tag, IOError?) {
   // The root tag must be a named TAG_Compound.
   let (root_tag, err) = read_nbt_tag(r)
   if err != None {
-    return ({ tag_type: TAG_End, name: None, value: NBT_Value::None }, err)
+    return ({ tag_type: TAG_End, name: None, value: NBT_Value::None, }, err)
   }
   // Basic validation: Check if the root is actually a Compound tag
   if root_tag.tag_type != TAG_Compound {

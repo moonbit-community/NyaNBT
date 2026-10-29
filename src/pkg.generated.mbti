@@ -23,15 +23,15 @@ pub fn read_nbt_tag(&@io.Reader) -> (NBT_Tag, @io.IOError?)
 
 // Types and methods
 pub(all) struct NBT_Tag {
-  tag_type : Int
+  tag_type : Int32
   name : String?
   value : NBT_Value
 }
 
 pub(all) enum NBT_Value {
-  Byte(Int)
-  Short(Int)
-  Int(Int)
+  Byte(Int32)
+  Short(Int32)
+  Int(Int32)
   Long(Int64)
   Float(Float)
   Double(Double)
@@ -39,14 +39,17 @@ pub(all) enum NBT_Value {
   String(String)
   List(@io.Slice[NBT_Tag])
   Compound(Map[String, NBT_Tag])
-  IntArray(@io.Slice[Int])
+  IntArray(@io.Slice[Int32])
   LongArray(@io.Slice[Int64])
   None
 }
 
 type Reader
+pub fn Reader::close(Self) -> @io.IOError?
 pub fn Reader::new(&@flate.Reader) -> (&@io.ReadCloser, @io.IOError?)
 pub fn Reader::new_dict(&@flate.Reader, @io.Slice[Byte]) -> (&@io.ReadCloser, @io.IOError?)
+pub fn Reader::read(Self, @io.Slice[Byte]) -> (Int32, @io.IOError?)
+pub fn Reader::reset(Self, &@flate.Reader, @io.Slice[Byte]) -> @io.IOError?
 pub impl @io.Closer for Reader
 pub impl @io.ReadCloser for Reader
 pub impl @io.Reader for Reader
@@ -56,6 +59,5 @@ pub impl Resetter for Reader
 
 // Traits
 pub(open) trait Resetter {
-  reset(Self, &@flate.Reader, @io.Slice[Byte]) -> @io.IOError?
+  fn reset(Self, &@flate.Reader, @io.Slice[Byte]) -> @io.IOError?
 }
-
