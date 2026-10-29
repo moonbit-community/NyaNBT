@@ -70,7 +70,7 @@ struct Reader {
   mut digest : &@hash.Hash32
   mut err : IOError?
   mut scratch : Slice[Byte] // [8]byte
-  mut size : UInt
+  mut size : UInt32
 }
 
 ///|
@@ -151,7 +151,8 @@ pub impl @io.Reader for Reader with fn read(self, p) {
   }
 
   let size = le_uint32(self.scratch[4:8])
-  if size != self.size % (1 << 32).reinterpret_as_uint() { // 取模处理可能的溢出
+  // UInt already accumulates the uncompressed length modulo 2^32.
+  if size != self.size {
     self.err = Some(IOError("gzip: invalid file size"))
     return (n, self.err)
   }
@@ -160,7 +161,7 @@ pub impl @io.Reader for Reader with fn read(self, p) {
 }
 
 ///|
-fn le_uint32(b : Slice[Byte]) -> UInt {
+fn le_uint32(b : Slice[Byte]) -> UInt32 {
   b[0].to_uint() |
   (b[1].to_uint() << 8) |
   (b[2].to_uint() << 16) |
